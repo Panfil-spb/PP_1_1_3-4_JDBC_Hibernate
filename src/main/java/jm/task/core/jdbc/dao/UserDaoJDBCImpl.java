@@ -31,58 +31,47 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try {
-            Statement statement = connection.createStatement();
+        try(Statement statement = connection.createStatement();) {
             statement.execute(CREAT_TABLE_SQL);
-            statement.close();
         } catch (SQLException ignored) {
         }
     }
 
     public void dropUsersTable() {
-        try {
-            Statement statement = connection.createStatement();
+        try(Statement statement = connection.createStatement();) {
             statement.execute(DROP_TABLE_SQL);
-            statement.close();
         } catch (SQLException ignored) {
 
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NEW_SQL);
-
+        try(PreparedStatement preparedStatement = connection.prepareStatement(INSERT_NEW_SQL)) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
 
             preparedStatement.execute();
-            preparedStatement.close();
-
         } catch (SQLException ignored) {
 
         }
     }
 
     public void removeUserById(long id) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_BY_ID);
-
+        try(PreparedStatement preparedStatement = connection.prepareStatement(REMOVE_BY_ID)) {
             preparedStatement.setLong(1, id);
 
             preparedStatement.execute();
-            preparedStatement.close();
-
         } catch (SQLException ignored) {
 
         }
     }
 
     public List<User> getAllUsers() {
-        try {
-            ArrayList<User> users = new ArrayList<>();
-            Statement statement = connection.createStatement();
+        ArrayList<User> users = new ArrayList<>();
+        try(Statement statement = connection.createStatement()) {
+
+
             ResultSet set = statement.executeQuery(SELECT_ALL_SQL);
             while (set.next()) {
                 users.add(new User(
@@ -90,20 +79,17 @@ public class UserDaoJDBCImpl implements UserDao {
                         set.getNString(3),
                         set.getByte(4)));
             }
-            statement.close();
-            return users;
         } catch (SQLException ignored) {
 
         }
-        return null;
+        finally {
+            return users;
+        }
     }
 
     public void cleanUsersTable() {
-        try {
-            Statement statement = connection.createStatement();
+        try(Statement statement = connection.createStatement()) {
             statement.execute(CLEAN_TABLE_SQL);
-
-            statement.close();
         } catch (SQLException ignored) {
 
         }
