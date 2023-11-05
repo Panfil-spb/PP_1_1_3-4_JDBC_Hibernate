@@ -13,9 +13,13 @@ import org.hibernate.service.ServiceRegistry;
 public class HibernateUtil {
     private final static String URL = "jdbc:mysql://localhost:3306/mydb";
     private final static String LOGIN = "root";
-    private final static String PASSWORD = "Panfil23";
+    private final static String PASSWORD = "root";
     private static SessionFactory sessionFactory;
-    public static SessionFactory getSessionFactory() {
+
+    public HibernateUtil() {
+
+    }
+    public SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             try {
                 Configuration configuration = new Configuration();
