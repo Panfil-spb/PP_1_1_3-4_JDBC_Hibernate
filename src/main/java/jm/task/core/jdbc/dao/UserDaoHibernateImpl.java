@@ -48,7 +48,6 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-//        cleanUsersTable();
         try(Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             session.createSQLQuery(DROP_TABLE_SQL).executeUpdate();
@@ -62,6 +61,9 @@ public class UserDaoHibernateImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
         try(Session session = sessionFactory.openSession()) {
             session.beginTransaction();
+            session.save(new User(name, lastName, age));
+            session.flush();
+            session.clear();
             session.getTransaction().commit();
         } catch (Exception ignore) {
 
@@ -75,7 +77,8 @@ public class UserDaoHibernateImpl implements UserDao {
         try(Session session = sessionFactory.openSession()) {
             User user = session.find(User.class, id);
             session.remove(user);
-            session.close();
+            session.flush();
+            session.clear();
         } catch (Exception ignore) {
 
         }
@@ -103,6 +106,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
             session.beginTransaction();
             session.createSQLQuery("TRUNCATE TABLE users").executeUpdate();
+            session.flush();
+            session.clear();
             session.getTransaction().commit();
         } catch (Exception ignore) {
 
