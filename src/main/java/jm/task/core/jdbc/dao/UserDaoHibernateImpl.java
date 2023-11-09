@@ -62,8 +62,8 @@ public class UserDaoHibernateImpl implements UserDao {
         try(Session session = sessionFactory.openSession()) {
             session.beginTransaction();
             session.save(new User(name, lastName, age));
-            session.flush();
-            session.clear();
+//            session.flush();
+//            session.clear();
             session.getTransaction().commit();
         } catch (Exception ignore) {
 
@@ -87,11 +87,18 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
-        ArrayList<User> users = new ArrayList<>();
-        try(Session session = sessionFactory.getCurrentSession()) {
-            session.beginTransaction();
-            users = (ArrayList<User>) session.createCriteria(User.class).list();
-            session.getTransaction().commit();
+        List<User> users = new ArrayList<>();
+        try(Session session = sessionFactory.openSession()) {
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+
+            // Create CriteriaQuery
+            CriteriaQuery<User> criteria = builder.createQuery(User.class);
+
+            // Specify criteria root
+            criteria.from(User.class);
+
+            // Execute query
+            users = session.createQuery(criteria).getResultList();
         } catch (Exception ignore) {
 
         }
