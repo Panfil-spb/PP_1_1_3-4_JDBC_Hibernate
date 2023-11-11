@@ -6,6 +6,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -36,83 +38,96 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-
+        Transaction transaction = null;
         try(Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            transaction = session.beginTransaction();
             session.createSQLQuery(CREAT_TABLE_SQL).executeUpdate();
-            session.getTransaction().commit();
+            transaction.commit();
         } catch (Exception ignore) {
-
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("createUsersTable: " + ignore.getMessage());
         }
     }
 
     @Override
     public void dropUsersTable() {
+        Transaction transaction = null;
         try(Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            transaction = session.beginTransaction();
             session.createSQLQuery(DROP_TABLE_SQL).executeUpdate();
-            session.getTransaction().commit();
+            transaction.commit();
         } catch (Exception ignore) {
-
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("dropUsersTable: " + ignore.getMessage());
         }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
+        Transaction transaction = null;
         try(Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.save(new User(name, lastName, age));
-//            session.flush();
-//            session.clear();
-            session.getTransaction().commit();
+            transaction = session.beginTransaction();
+            session.persist(new User(name, lastName, age));
+            transaction.commit();
         } catch (Exception ignore) {
-
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("saveUser: " + ignore.getMessage());
         }
-
-
     }
 
     @Override
     public void removeUserById(long id) {
+        Transaction transaction = null;
         try(Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             User user = session.find(User.class, id);
             session.remove(user);
-            session.flush();
-            session.clear();
+            transaction.commit();
+
         } catch (Exception ignore) {
-
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("removeUserById: " + ignore.getMessage());
         }
-
     }
 
     @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
+        Transaction transaction = null;
         try(Session session = sessionFactory.openSession()) {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<User> criteria = builder.createQuery(User.class);
-            criteria.from(User.class);
-            users = session.createQuery(criteria).getResultList();
-        } catch (Exception ignore) {
-
+            transaction = session.beginTransaction();
+            users = session.createQuery("FROM users", User.class).getResultList();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("getAllUsers: " + e.getMessage());
         }
         return users;
-
     }
 
     @Override
     public void cleanUsersTable() {
-
+        Transaction transaction = null;
         try(Session session = sessionFactory.openSession()) {
 
-            session.beginTransaction();
+            transaction = session.beginTransaction();
             session.createSQLQuery("TRUNCATE TABLE users").executeUpdate();
-            session.flush();
-            session.clear();
-            session.getTransaction().commit();
+            transaction.commit();
         } catch (Exception ignore) {
-
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("cleanUsersTable: " + ignore.getMessage());
         }
-
     }
 }
