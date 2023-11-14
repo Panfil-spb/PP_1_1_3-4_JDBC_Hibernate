@@ -44,9 +44,6 @@ public class UserDaoHibernateImpl implements UserDao {
             session.createSQLQuery(CREAT_TABLE_SQL).executeUpdate();
             transaction.commit();
         } catch (Exception ignore) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             System.out.println("createUsersTable: " + ignore.getMessage());
         }
     }
@@ -59,9 +56,6 @@ public class UserDaoHibernateImpl implements UserDao {
             session.createSQLQuery(DROP_TABLE_SQL).executeUpdate();
             transaction.commit();
         } catch (Exception ignore) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             System.out.println("dropUsersTable: " + ignore.getMessage());
         }
     }
@@ -107,9 +101,6 @@ public class UserDaoHibernateImpl implements UserDao {
             users = session.createQuery("FROM users", User.class).getResultList();
             transaction.commit();
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             System.out.println("getAllUsers: " + e.getMessage());
         }
         return users;
